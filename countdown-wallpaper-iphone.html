@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Countdown Wallpaper - iPhone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;600;700;900&family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700;900&family=Raleway:wght@300;400;600;700;900&family=Roboto:wght@300;400;700;900&family=Oswald:wght@400;600;700&family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+            position: fixed;
+        }
+
+        #wallpaper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        /* Depth overlay layers */
+        .depth-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .depth-layer-1 {
+            background: linear-gradient(180deg, 
+                rgba(0,0,0,0) 0%, 
+                rgba(0,0,0,0.05) 50%, 
+                rgba(0,0,0,0.1) 100%);
+            z-index: 2;
+        }
+
+        #countdown-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            text-align: center;
+            filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.3));
+        }
+
+        #motivational-text {
+            font-size: 18px;
+            font-weight: 300;
+            color: #000000;
+            text-shadow: 
+                0 3px 8px rgba(0, 0, 0, 0.15),
+                0 2px 4px rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            opacity: 0.85;
+            font-family: 'Montserrat', sans-serif;
+            animation: fadeIn 1.5s ease-in;
+            padding: 0 20px;
+        }
+
+        #countdown {
+            font-family: 'Poppins', sans-serif;
+            color: #000000;
+            text-shadow: 
+                0 6px 12px rgba(0, 0, 0, 0.2),
+                0 3px 6px rgba(0, 0, 0, 0.15),
+                0 2px 4px rgba(255, 255, 255, 0.1);
+            letter-spacing: -0.02em;
+            line-height: 0.85;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        #countdown .days {
+            display: block;
+            font-size: 100px;
+            font-weight: 900;
+            text-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.3),
+                0 4px 10px rgba(0, 0, 0, 0.2),
+                0 2px 6px rgba(255, 255, 255, 0.15);
+        }
+
+        #countdown .label {
+            display: block;
+            font-size: 16px;
+            font-weight: 400;
+            margin-top: 12px;
+            opacity: 0.7;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            text-shadow: 
+                0 3px 6px rgba(0, 0, 0, 0.15),
+                0 2px 4px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Time display with depth */
+        #time {
+            font-size: 28px;
+            font-weight: 600;
+            color: #000000;
+            text-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.2),
+                0 2px 4px rgba(0, 0, 0, 0.15),
+                0 1px 2px rgba(255, 255, 255, 0.1);
+            margin-top: 25px;
+            opacity: 0.8;
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 0.05em;
+            animation: fadeInUp 1.2s ease-out;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-15px);
+            }
+            to {
+                opacity: 0.85;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Settings button - touch optimized */
+        #settings-btn {
+            position: fixed;
+            bottom: 40px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #000000;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 100;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 6px 12px rgba(0, 0, 0, 0.15),
+                0 3px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #settings-btn:active {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0.95);
+        }
+
+        #settings-btn.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px) scale(0.8);
+        }
+
+        /* Settings panel - mobile optimized */
+        #settings-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(30px);
+            padding: 25px 20px;
+            padding-bottom: calc(25px + env(safe-area-inset-bottom));
+            border-radius: 25px 25px 0 0;
+            box-shadow: 
+                0 -10px 40px rgba(0, 0, 0, 0.2),
+                0 -5px 20px rgba(0, 0, 0, 0.15);
+            z-index: 200;
+            max-height: 85vh;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+        }
+
+        #settings-panel.active {
+            transform: translateY(0);
+        }
+
+        #settings-panel h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #000;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+        }
+
+        #settings-panel label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        #settings-panel input[type="date"],
+        #settings-panel input[type="text"],
+        #settings-panel select {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 5px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-family: inherit;
+            background: white;
+        }
+
+        #settings-panel input:focus,
+        #settings-panel select:focus {
+            outline: none;
+            border-color: #000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        #settings-panel input[type="color"] {
+            width: 100%;
+            height: 50px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        #settings-panel input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #000;
+            cursor: pointer;
+        }
+
+        .range-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            position: sticky;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 15px 0;
+            margin: 20px -20px -25px -20px;
+            padding: 15px 20px;
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
+            border-top: 2px solid #f0f0f0;
+        }
+
+        #settings-panel button {
+            flex: 1;
+            padding: 16px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        #settings-panel .save-btn {
+            background: #000;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        #settings-panel .save-btn:active {
+            background: #333;
+            transform: scale(0.98);
+        }
+
+        #settings-panel .cancel-btn {
+            background: #f0f0f0;
+            color: #000;
+        }
+
+        #settings-panel .cancel-btn:active {
+            background: #e0e0e0;
+            transform: scale(0.98);
+        }
+
+        /* Font preview */
+        .font-preview {
+            margin-top: 10px;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 20px;
+            border: 2px solid #e0e0e0;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* Pull handle for settings */
+        .pull-handle {
+            width: 40px;
+            height: 5px;
+            background: #d0d0d0;
+            border-radius: 3px;
+            margin: 0 auto 15px;
+        }
+
+        /* Improved scrolling on iOS */
+        #settings-panel {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Safe area for iPhone notch */
+        @supports (padding: env(safe-area-inset-bottom)) {
+            #countdown-container {
+                padding-top: env(safe-area-inset-top);
+            }
+        }
+    </style>
+</head>
+<body>
+    <img id="wallpaper" src="wavy-black-white-background.jpg" alt="Wallpaper">
+    
+    <div class="depth-layer depth-layer-1"></div>
+    
+    <div id="countdown-container">
+        <div id="motivational-text">A man with big dreams can't relax</div>
+        <div id="countdown">
+            <span class="days">00</span>
+            <span class="label">Days Remaining</span>
+        </div>
+        <div id="time">00:00:00</div>
+    </div>
+
+    <button id="settings-btn">⚙️</button>
+
+    <div class="toast" id="toast"></div>
+
+    <div id="settings-panel">
+        <div class="pull-handle"></div>
+        <h2>⚙️ Settings</h2>
+        
+        <div class="setting-group">
+            <label>🎯 Target Date:</label>
+            <input type="date" id="target-date" value="2025-12-31">
+        </div>
+
+        <div class="setting-group">
+            <label>💬 Motivational Text:</label>
+            <input type="text" id="motivational-text-input" value="A man with big dreams can't relax" placeholder="Enter your motivational text">
+        </div>
+
+        <div class="setting-group">
+            <label>📍 Position:</label>
+            <select id="position">
+                <option value="center">Center</option>
+                <option value="top">Top</option>
+                <option value="bottom">Bottom</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label>🎨 Text Color:</label>
+            <input type="color" id="text-color" value="#000000">
+        </div>
+
+        <div class="setting-group">
+            <label>📝 Countdown Font:</label>
+            <select id="countdown-font">
+                <option value="'Poppins', sans-serif">Poppins (Modern)</option>
+                <option value="'Montserrat', sans-serif">Montserrat (Clean)</option>
+                <option value="'Bebas Neue', sans-serif">Bebas Neue (Bold)</option>
+                <option value="'Playfair Display', serif">Playfair Display (Elegant)</option>
+                <option value="'Raleway', sans-serif">Raleway (Light)</option>
+                <option value="'Roboto', sans-serif">Roboto (Classic)</option>
+                <option value="'Oswald', sans-serif">Oswald (Strong)</option>
+                <option value="'Inter', sans-serif">Inter (Contemporary)</option>
+            </select>
+            <div class="font-preview" id="countdown-preview">123</div>
+        </div>
+
+        <div class="setting-group">
+            <label>✍️ Text Font:</label>
+            <select id="motivational-font">
+                <option value="'Montserrat', sans-serif">Montserrat (Clean)</option>
+                <option value="'Poppins', sans-serif">Poppins (Modern)</option>
+                <option value="'Raleway', sans-serif">Raleway (Light)</option>
+                <option value="'Playfair Display', serif">Playfair Display (Elegant)</option>
+                <option value="'Bebas Neue', sans-serif">Bebas Neue (Bold)</option>
+                <option value="'Roboto', sans-serif">Roboto (Classic)</option>
+                <option value="'Oswald', sans-serif">Oswald (Strong)</option>
+                <option value="'Inter', sans-serif">Inter (Contemporary)</option>
+            </select>
+            <div class="font-preview" id="motivational-preview">Sample Text</div>
+        </div>
+
+        <div class="setting-group">
+            <label>🔢 Days Size: <span class="range-value" id="days-size-value">100px</span></label>
+            <input type="range" id="days-size" min="60" max="150" value="100">
+        </div>
+
+        <div class="setting-group">
+            <label>⏰ Time Size: <span class="range-value" id="time-size-value">28px</span></label>
+            <input type="range" id="time-size" min="18" max="40" value="28">
+        </div>
+
+        <div class="setting-group">
+            <label>💭 Text Size: <span class="range-value" id="text-size-value">18px</span></label>
+            <input type="range" id="text-size" min="14" max="32" value="18">
+        </div>
+
+        <div class="setting-group">
+            <label>🌊 Depth Effect:</label>
+            <input type="range" id="depth-intensity" min="0" max="100" value="50">
+            <span class="range-value" id="depth-value">50%</span>
+        </div>
+
+        <div class="button-group">
+            <button class="cancel-btn" onclick="closeSettings()">Cancel</button>
+            <button class="save-btn" onclick="saveSettings()">Save</button>
+        </div>
+    </div>
+
+    <script>
+        // Default target date
+        let targetDate = new Date('2025-12-31T23:59:59').getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.querySelector('.days').textContent = Math.max(0, days).toString().padStart(2, '0');
+            document.getElementById('time').textContent = 
+                `${Math.max(0, hours).toString().padStart(2, '0')}:${Math.max(0, minutes).toString().padStart(2, '0')}:${Math.max(0, seconds).toString().padStart(2, '0')}`;
+
+            if (distance < 0) {
+                document.querySelector('.days').textContent = '00';
+                document.getElementById('time').textContent = '00:00:00';
+                document.querySelector('.label').textContent = 'Time\'s Up!';
+            }
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+
+        // Settings functionality
+        document.getElementById('settings-btn').addEventListener('click', () => {
+            document.getElementById('settings-panel').classList.add('active');
+        });
+
+        function closeSettings() {
+            document.getElementById('settings-panel').classList.remove('active');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function saveSettings() {
+            const date = document.getElementById('target-date').value;
+            const motivationalText = document.getElementById('motivational-text-input').value;
+            const position = document.getElementById('position').value;
+            const color = document.getElementById('text-color').value;
+            const countdownFont = document.getElementById('countdown-font').value;
+            const motivationalFont = document.getElementById('motivational-font').value;
+            const daysSize = document.getElementById('days-size').value;
+            const timeSize = document.getElementById('time-size').value;
+            const textSize = document.getElementById('text-size').value;
+            const depthIntensity = document.getElementById('depth-intensity').value;
+
+            targetDate = new Date(date + 'T23:59:59').getTime();
+            
+            document.getElementById('motivational-text').textContent = motivationalText;
+            
+            const container = document.getElementById('countdown-container');
+            container.style.top = '';
+            container.style.transform = '';
+            
+            switch(position) {
+                case 'top':
+                    container.style.top = '25%';
+                    container.style.transform = 'translate(-50%, 0)';
+                    break;
+                case 'bottom':
+                    container.style.top = '75%';
+                    container.style.transform = 'translate(-50%, 0)';
+                    break;
+                default:
+                    container.style.top = '50%';
+                    container.style.transform = 'translate(-50%, -50%)';
+            }
+
+            document.getElementById('countdown').style.color = color;
+            document.getElementById('time').style.color = color;
+            document.getElementById('motivational-text').style.color = color;
+            
+            document.getElementById('countdown').style.fontFamily = countdownFont;
+            document.getElementById('time').style.fontFamily = countdownFont;
+            document.getElementById('motivational-text').style.fontFamily = motivationalFont;
+
+            document.querySelector('.days').style.fontSize = daysSize + 'px';
+            document.getElementById('time').style.fontSize = timeSize + 'px';
+            document.getElementById('motivational-text').style.fontSize = textSize + 'px';
+
+            const depthLayer = document.querySelector('.depth-layer-1');
+            const opacity = depthIntensity / 1000;
+            depthLayer.style.background = `linear-gradient(180deg, 
+                rgba(0,0,0,0) 0%, 
+                rgba(0,0,0,${opacity * 0.5}) 50%, 
+                rgba(0,0,0,${opacity}) 100%)`;
+
+            localStorage.setItem('countdown-settings-mobile', JSON.stringify({
+                date, motivationalText, position, color, countdownFont, motivationalFont, 
+                daysSize, timeSize, textSize, depthIntensity
+            }));
+
+            closeSettings();
+            showToast('✅ Settings saved!');
+            updateCountdown();
+        }
+
+        // Load saved settings
+        const savedSettings = localStorage.getItem('countdown-settings-mobile');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            document.getElementById('target-date').value = settings.date;
+            document.getElementById('motivational-text-input').value = settings.motivationalText || 'A man with big dreams can\'t relax';
+            document.getElementById('position').value = settings.position;
+            document.getElementById('text-color').value = settings.color;
+            document.getElementById('countdown-font').value = settings.countdownFont;
+            document.getElementById('motivational-font').value = settings.motivationalFont;
+            document.getElementById('days-size').value = settings.daysSize;
+            document.getElementById('time-size').value = settings.timeSize;
+            document.getElementById('text-size').value = settings.textSize;
+            document.getElementById('depth-intensity').value = settings.depthIntensity || 50;
+            updateSliderValues();
+            saveSettings();
+        }
+
+        // Slider value displays
+        function updateSliderValues() {
+            document.getElementById('days-size-value').textContent = document.getElementById('days-size').value + 'px';
+            document.getElementById('time-size-value').textContent = document.getElementById('time-size').value + 'px';
+            document.getElementById('text-size-value').textContent = document.getElementById('text-size').value + 'px';
+            document.getElementById('depth-value').textContent = document.getElementById('depth-intensity').value + '%';
+        }
+
+        document.getElementById('days-size').addEventListener('input', updateSliderValues);
+        document.getElementById('time-size').addEventListener('input', updateSliderValues);
+        document.getElementById('text-size').addEventListener('input', updateSliderValues);
+        document.getElementById('depth-intensity').addEventListener('input', updateSliderValues);
+
+        // Font preview updates
+        document.getElementById('countdown-font').addEventListener('change', (e) => {
+            document.getElementById('countdown-preview').style.fontFamily = e.target.value;
+        });
+
+        document.getElementById('motivational-font').addEventListener('change', (e) => {
+            document.getElementById('motivational-preview').style.fontFamily = e.target.value;
+            document.getElementById('motivational-preview').textContent = document.getElementById('motivational-text-input').value || 'Sample Text';
+        });
+
+        document.getElementById('motivational-text-input').addEventListener('input', (e) => {
+            document.getElementById('motivational-preview').textContent = e.target.value || 'Sample Text';
+        });
+
+        // Initialize previews
+        document.getElementById('countdown-preview').style.fontFamily = document.getElementById('countdown-font').value;
+        document.getElementById('motivational-preview').style.fontFamily = document.getElementById('motivational-font').value;
+
+        // Swipe down to close settings
+        let startY = 0;
+        const panel = document.getElementById('settings-panel');
+        
+        panel.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+        });
+
+        panel.addEventListener('touchmove', (e) => {
+            const currentY = e.touches[0].clientY;
+            const diff = currentY - startY;
+            
+            if (diff > 0 && panel.scrollTop === 0) {
+                e.preventDefault();
+                panel.style.transform = `translateY(${diff}px)`;
+            }
+        });
+
+        panel.addEventListener('touchend', (e) => {
+            const currentY = e.changedTouches[0].clientY;
+            const diff = currentY - startY;
+            
+            if (diff > 100) {
+                closeSettings();
+            }
+            panel.style.transform = '';
+        });
+
+        // Long press settings button to hide
+        let pressTimer;
+        const settingsBtn = document.getElementById('settings-btn');
+        
+        settingsBtn.addEventListener('touchstart', (e) => {
+            pressTimer = setTimeout(() => {
+                settingsBtn.classList.add('hidden');
+                showToast('🙈 Settings button hidden\nTriple tap screen to show');
+            }, 800);
+        });
+
+        settingsBtn.addEventListener('touchend', () => {
+            clearTimeout(pressTimer);
+        });
+
+        // Triple tap to show settings button
+        let tapCount = 0;
+        let tapTimer;
+        
+        document.body.addEventListener('touchend', (e) => {
+            if (e.target.closest('#settings-panel') || e.target.closest('#settings-btn')) return;
+            
+            tapCount++;
+            
+            if (tapCount === 1) {
+                tapTimer = setTimeout(() => {
+                    tapCount = 0;
+                }, 500);
+            }
+            
+            if (tapCount === 3) {
+                clearTimeout(tapTimer);
+                tapCount = 0;
+                
+                if (settingsBtn.classList.contains('hidden')) {
+                    settingsBtn.classList.remove('hidden');
+                    showToast('👀 Settings button visible');
+                }
+            }
+        });
+
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+</body>
+</html>
